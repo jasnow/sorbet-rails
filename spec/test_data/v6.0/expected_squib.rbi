@@ -135,33 +135,6 @@ module Squib::GeneratedAttributeMethods
   def created_at?; end
 
   sig { returns(T.nilable(String)) }
-  def eye_color; end
-
-  sig { params(value: T.nilable(T.any(Integer, String, Symbol))).void }
-  def eye_color=(value); end
-
-  sig { returns(T::Boolean) }
-  def eye_color?; end
-
-  sig { returns(T.nilable(String)) }
-  def hair_color; end
-
-  sig { params(value: T.nilable(T.any(Integer, String, Symbol))).void }
-  def hair_color=(value); end
-
-  sig { returns(T::Boolean) }
-  def hair_color?; end
-
-  sig { returns(T.nilable(Integer)) }
-  def hair_length; end
-
-  sig { params(value: T.nilable(Integer)).void }
-  def hair_length=(value); end
-
-  sig { returns(T::Boolean) }
-  def hair_length?; end
-
-  sig { returns(T.nilable(String)) }
   def house; end
 
   sig { params(value: T.nilable(T.any(Integer, String, Symbol))).void }
@@ -205,15 +178,6 @@ module Squib::GeneratedAttributeMethods
 
   sig { returns(T::Boolean) }
   def parent_email?; end
-
-  sig { returns(T.nilable(String)) }
-  def quidditch_position; end
-
-  sig { params(value: T.nilable(T.any(Integer, String, Symbol))).void }
-  def quidditch_position=(value); end
-
-  sig { returns(T::Boolean) }
-  def quidditch_position?; end
 
   sig { returns(String) }
   def type; end

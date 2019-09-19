@@ -46,10 +46,6 @@ ActiveRecord::Schema.define(version: 2019_06_20_000007) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "broom"
-    t.integer "quidditch_position"
-    t.integer "hair_color"
-    t.integer "eye_color"
-    t.integer "hair_length"
     t.string "type", default: "Wizard", null: false
   end
 
