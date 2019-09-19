@@ -125,10 +125,10 @@ module Wizard::GeneratedAttributeMethods
   sig { returns(T::Boolean) }
   def broom?; end
 
-  sig { returns(DateTime) }
+  sig { returns(ActiveSupport::TimeWithZone) }
   def created_at; end
 
-  sig { params(value: DateTime).void }
+  sig { params(value: T.any(DateTime, Date, Time, ActiveSupport::TimeWithZone)).void }
   def created_at=(value); end
 
   sig { returns(T::Boolean) }
@@ -224,10 +224,10 @@ module Wizard::GeneratedAttributeMethods
   sig { returns(T::Boolean) }
   def type?; end
 
-  sig { returns(DateTime) }
+  sig { returns(ActiveSupport::TimeWithZone) }
   def updated_at; end
 
-  sig { params(value: DateTime).void }
+  sig { params(value: T.any(DateTime, Date, Time, ActiveSupport::TimeWithZone)).void }
   def updated_at=(value); end
 
   sig { returns(T::Boolean) }
@@ -487,6 +487,15 @@ class Wizard < ApplicationRecord
 
   sig { params(args: T.untyped).returns(T::Boolean) }
   def self.one?(*args); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(Wizard) }
+  def self.create(attributes = nil, &block); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(Wizard) }
+  def self.create!(attributes = nil, &block); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(Wizard) }
+  def self.new(attributes = nil, &block); end
 end
 
 class Wizard::ActiveRecord_Relation < ActiveRecord::Relation
@@ -692,7 +701,7 @@ class Wizard::ActiveRecord_Relation < ActiveRecord::Relation
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: Wizard).void).void }
+  sig { override.params(block: T.proc.params(e: Wizard).void).returns(T::Array[Wizard]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[Wizard]) }
@@ -913,7 +922,7 @@ class Wizard::ActiveRecord_AssociationRelation < ActiveRecord::AssociationRelati
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: Wizard).void).void }
+  sig { override.params(block: T.proc.params(e: Wizard).void).returns(T::Array[Wizard]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[Wizard]) }
@@ -1133,7 +1142,7 @@ class Wizard::ActiveRecord_Associations_CollectionProxy < ActiveRecord::Associat
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: Wizard).void).void }
+  sig { override.params(block: T.proc.params(e: Wizard).void).returns(T::Array[Wizard]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[Wizard]) }

@@ -125,10 +125,10 @@ module Squib::GeneratedAttributeMethods
   sig { returns(T::Boolean) }
   def broom?; end
 
-  sig { returns(DateTime) }
+  sig { returns(ActiveSupport::TimeWithZone) }
   def created_at; end
 
-  sig { params(value: DateTime).void }
+  sig { params(value: T.any(DateTime, Date, Time, ActiveSupport::TimeWithZone)).void }
   def created_at=(value); end
 
   sig { returns(T::Boolean) }
@@ -224,10 +224,10 @@ module Squib::GeneratedAttributeMethods
   sig { returns(T::Boolean) }
   def type?; end
 
-  sig { returns(DateTime) }
+  sig { returns(ActiveSupport::TimeWithZone) }
   def updated_at; end
 
-  sig { params(value: DateTime).void }
+  sig { params(value: T.any(DateTime, Date, Time, ActiveSupport::TimeWithZone)).void }
   def updated_at=(value); end
 
   sig { returns(T::Boolean) }
@@ -487,6 +487,15 @@ class Squib < Wizard
 
   sig { params(args: T.untyped).returns(T::Boolean) }
   def self.one?(*args); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(Squib) }
+  def self.create(attributes = nil, &block); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(Squib) }
+  def self.create!(attributes = nil, &block); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(Squib) }
+  def self.new(attributes = nil, &block); end
 end
 
 class Squib::ActiveRecord_Relation < ActiveRecord::Relation
@@ -692,7 +701,7 @@ class Squib::ActiveRecord_Relation < ActiveRecord::Relation
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: Squib).void).void }
+  sig { override.params(block: T.proc.params(e: Squib).void).returns(T::Array[Squib]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[Squib]) }
@@ -913,7 +922,7 @@ class Squib::ActiveRecord_AssociationRelation < ActiveRecord::AssociationRelatio
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: Squib).void).void }
+  sig { override.params(block: T.proc.params(e: Squib).void).returns(T::Array[Squib]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[Squib]) }
@@ -1133,7 +1142,7 @@ class Squib::ActiveRecord_Associations_CollectionProxy < ActiveRecord::Associati
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: Squib).void).void }
+  sig { override.params(block: T.proc.params(e: Squib).void).returns(T::Array[Squib]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[Squib]) }

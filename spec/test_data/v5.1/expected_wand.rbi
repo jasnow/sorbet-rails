@@ -47,6 +47,15 @@ module Wand::GeneratedAttributeMethods
   sig { returns(T::Boolean) }
   def broken?; end
 
+  sig { returns(T.nilable(Time)) }
+  def broken_at; end
+
+  sig { params(value: T.nilable(Time)).void }
+  def broken_at=(value); end
+
+  sig { returns(T::Boolean) }
+  def broken_at?; end
+
   sig { returns(T.nilable(Date)) }
   def chosen_at_date; end
 
@@ -56,10 +65,10 @@ module Wand::GeneratedAttributeMethods
   sig { returns(T::Boolean) }
   def chosen_at_date?; end
 
-  sig { returns(T.nilable(Time)) }
+  sig { returns(T.nilable(ActiveSupport::TimeWithZone)) }
   def chosen_at_time; end
 
-  sig { params(value: T.nilable(Time)).void }
+  sig { params(value: T.nilable(T.any(DateTime, Date, Time, ActiveSupport::TimeWithZone))).void }
   def chosen_at_time=(value); end
 
   sig { returns(T::Boolean) }
@@ -74,10 +83,10 @@ module Wand::GeneratedAttributeMethods
   sig { returns(T::Boolean) }
   def core_type?; end
 
-  sig { returns(DateTime) }
+  sig { returns(ActiveSupport::TimeWithZone) }
   def created_at; end
 
-  sig { params(value: DateTime).void }
+  sig { params(value: T.any(DateTime, Date, Time, ActiveSupport::TimeWithZone)).void }
   def created_at=(value); end
 
   sig { returns(T::Boolean) }
@@ -119,10 +128,10 @@ module Wand::GeneratedAttributeMethods
   sig { returns(T::Boolean) }
   def reflectance?; end
 
-  sig { returns(DateTime) }
+  sig { returns(ActiveSupport::TimeWithZone) }
   def updated_at; end
 
-  sig { params(value: DateTime).void }
+  sig { params(value: T.any(DateTime, Date, Time, ActiveSupport::TimeWithZone)).void }
   def updated_at=(value); end
 
   sig { returns(T::Boolean) }
@@ -344,6 +353,15 @@ class Wand < ApplicationRecord
   sig { params(args: T.untyped).returns(T::Boolean) }
   def self.one?(*args); end
 
+  sig { params(attributes: T.untyped, block: T.untyped).returns(Wand) }
+  def self.create(attributes = nil, &block); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(Wand) }
+  def self.create!(attributes = nil, &block); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(Wand) }
+  def self.new(attributes = nil, &block); end
+
   sig { returns(T::Array[Wand]) }
   def self.mythicals; end
 end
@@ -515,7 +533,7 @@ class Wand::ActiveRecord_Relation < ActiveRecord::Relation
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: Wand).void).void }
+  sig { override.params(block: T.proc.params(e: Wand).void).returns(T::Array[Wand]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[Wand]) }
@@ -700,7 +718,7 @@ class Wand::ActiveRecord_AssociationRelation < ActiveRecord::AssociationRelation
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: Wand).void).void }
+  sig { override.params(block: T.proc.params(e: Wand).void).returns(T::Array[Wand]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[Wand]) }
@@ -884,7 +902,7 @@ class Wand::ActiveRecord_Associations_CollectionProxy < ActiveRecord::Associatio
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: Wand).void).void }
+  sig { override.params(block: T.proc.params(e: Wand).void).returns(T::Array[Wand]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[Wand]) }

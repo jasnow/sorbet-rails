@@ -1,11 +1,23 @@
 # typed: false
 require 'sorbet-runtime'
 
+wand = Wand.first!
 wizard = Wizard.first!
 T.assert_type!(wizard, Wizard)
 
 # -- model columns
 T.assert_type!(wizard.name, T.nilable(String))
+
+# -- time/date columns
+T.assert_type!(wizard.created_at, ActiveSupport::TimeWithZone)
+T.assert_type!(wand.broken_at, T.nilable(Time))
+T.assert_type!(wand.chosen_at_date, T.nilable(Date))
+
+# assert that TZ aware attributes are casted to TimeWithZone after assigning
+wizard.created_at = DateTime.now
+T.assert_type!(wizard.created_at, ActiveSupport::TimeWithZone)
+
+T.assert_type!(wand.chosen_at_time, T.nilable(ActiveSupport::TimeWithZone))
 
 # -- model associations
 T.assert_type!(wizard.wand, T.nilable(Wand))
@@ -163,12 +175,10 @@ T.assert_type!(Wand.mythicals, T::Array[Wand])
 
 T.assert_type!(HogwartsAcceptanceMailer.notify(wizard), ActionMailer::MessageDelivery)
 
-if ENV["RAILS_VERSION"] != "4.2"
-  T.assert_type!(wizard.broom_nimbus?, T::Boolean)
-  T.assert_type!(wizard.color_brown_eyes?, T::Boolean)
-  T.assert_type!(wizard.quidditch_keeper?, T::Boolean)
-  T.assert_type!(wizard.brown_hair?, T::Boolean)
-end
+T.assert_type!(wizard.broom_nimbus?, T::Boolean)
+T.assert_type!(wizard.color_brown_eyes?, T::Boolean)
+T.assert_type!(wizard.quidditch_keeper?, T::Boolean)
+T.assert_type!(wizard.brown_hair?, T::Boolean)
 
 # -- Custom ActionController::Parameters Methods
 params = ActionController::Parameters.new({

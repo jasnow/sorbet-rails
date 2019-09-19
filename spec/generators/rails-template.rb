@@ -20,6 +20,15 @@ def add_routes
   route "get 'test/index' => 'test#index'"
 end
 
+def add_environment
+  if ENV["RAILS_VERSION"] == "5.0"
+    # by default, Rails 5.0 treats only `datetime` as a time zone aware type;
+    # this config option brings it in line with all versions up to at least v6.0
+    # and makes our time-related attribute fixtures simpler to maintain
+    environment 'config.active_record.time_zone_aware_types = [:datetime, :time]'
+  end
+end
+
 def create_initializers
   initializer "sorbet_rails.rb", <<~RUBY
     # typed: strict
@@ -67,14 +76,6 @@ def create_helpers
 end
 
 def create_models
-  if ENV['RAILS_VERSION'] == '4.2'
-    file "app/models/application_record.rb", <<~RUBY
-      class ApplicationRecord < ActiveRecord::Base
-        self.abstract_class = true
-      end
-    RUBY
-  end
-
   file "app/models/spell_book.rb", <<~RUBY
     class SpellBook < ApplicationRecord
       validates :name, length: { minimum: 5 }, presence: true
@@ -99,6 +100,8 @@ def create_models
     class Wand < ApplicationRecord
       include Mythical
 
+      self.skip_time_zone_conversion_for_attributes = [:broken_at]
+
       enum core_type: {
         phoenix_feather: 0,
         dragon_heartstring: 1,
@@ -120,89 +123,56 @@ def create_models
     attachments = "has_one_attached :school_photo\n  has_many_attached :hats"
   end
 
-  if ENV["RAILS_VERSION"] == "4.2"
-    file "app/models/wizard.rb", <<~RUBY
-      class Wizard < ApplicationRecord
-        validates :name, length: { minimum: 5 }, presence: true
+  file "app/models/wizard.rb", <<~RUBY
+    class Wizard < ApplicationRecord
+      validates :name, length: { minimum: 5 }, presence: true
 
-        enum house: {
-          Gryffindor: 0,
-          Hufflepuff: 1,
-          Ravenclaw: 2,
-          Slytherin: 3,
-        }
+      enum house: {
+        Gryffindor: 0,
+        Hufflepuff: 1,
+        Ravenclaw: 2,
+        Slytherin: 3,
+      }
 
-        enum professor: {
-          "Severus Snape": 0,
-          "Minerva McGonagall": 1,
-          "Pomona Sprout": 2,
-          "Filius Flitwick": 3,
-          "Hagrid": 4,
-        }
+      enum professor: {
+        "Severus Snape": 0,
+        "Minerva McGonagall": 1,
+        "Pomona Sprout": 2,
+        "Filius Flitwick": 3,
+        "Hagrid": 4,
+      }
 
-        enum broom: {
-          nimbus: 'nimbus',
-          firebolt: 'firebolt',
-        }
+      enum broom: {
+        nimbus: 'nimbus',
+        firebolt: 'firebolt',
+      }, _prefix: true
 
-        has_one :wand
-        has_many :spell_books
+      enum quidditch_position: {
+        keeper: 0,
+        seeker: 1,
+        beater: 2,
+        chaser: 3,
+      }, _prefix: :quidditch
 
-        scope :recent, -> { where('created_at > ?', 1.month.ago) }
-      end
-    RUBY
-  else
-    file "app/models/wizard.rb", <<~RUBY
-      class Wizard < ApplicationRecord
-        validates :name, length: { minimum: 5 }, presence: true
+      enum hair_color: {
+        brown: 0,
+        black: 1,
+        blonde: 2,
+      }, _suffix: :hair
 
-        enum house: {
-          Gryffindor: 0,
-          Hufflepuff: 1,
-          Ravenclaw: 2,
-          Slytherin: 3,
-        }
+      enum eye_color: {
+        brown: 0,
+        green: 1,
+        blue: 2,
+      }, _prefix: :color, _suffix: :eyes
 
-        enum professor: {
-          "Severus Snape": 0,
-          "Minerva McGonagall": 1,
-          "Pomona Sprout": 2,
-          "Filius Flitwick": 3,
-          "Hagrid": 4,
-        }
+      has_one :wand
+      has_many :spell_books
 
-        enum broom: {
-          nimbus: 'nimbus',
-          firebolt: 'firebolt',
-        }, _prefix: true
-
-        enum quidditch_position: {
-          keeper: 0,
-          seeker: 1,
-          beater: 2,
-          chaser: 3,
-        }, _prefix: :quidditch
-
-        enum hair_color: {
-          brown: 0,
-          black: 1,
-          blonde: 2,
-        }, _suffix: :hair
-
-        enum eye_color: {
-          brown: 0,
-          green: 1,
-          blue: 2,
-        }, _prefix: :color, _suffix: :eyes
-
-        has_one :wand
-        has_many :spell_books
-
-        scope :recent, -> { where('created_at > ?', 1.month.ago) }
-        #{attachments}
-      end
-    RUBY
-  end
+      scope :recent, -> { where('created_at > ?', 1.month.ago) }
+      #{attachments}
+    end
+  RUBY
 
   file "app/models/concerns/mythical.rb", <<~RUBY
     require 'active_support/concern'
@@ -227,11 +197,7 @@ def create_models
 end
 
 def create_migrations
-  if ENV["RAILS_VERSION"] == "4.2"
-    migration_superclass = 'ActiveRecord::Migration'
-  else
-    migration_superclass = "ActiveRecord::Migration[#{ENV['RAILS_VERSION']}]"
-  end
+  migration_superclass = "ActiveRecord::Migration[#{ENV['RAILS_VERSION']}]"
 
   file "db/migrate/20190620000001_create_wizards.rb", <<~RUBY
     class CreateWizards < #{migration_superclass}
@@ -242,7 +208,7 @@ def create_migrations
           t.string :parent_email
           t.text :notes
 
-          t.timestamps
+          t.timestamps null: false
         end
       end
     end
@@ -281,10 +247,11 @@ def create_migrations
         add_column :wands, :hardness,       :decimal, null: false, precision: 10, scale: 10, default: 5
         add_column :wands, :reflectance,    :decimal, null: false, precision: 10, scale: 0, default: 0.5
         add_column :wands, :broken,         :boolean, null: false, default: false
+        add_column :wands, :broken_at,      :datetime, null: true
         add_column :wands, :chosen_at_date, :date
         add_column :wands, :chosen_at_time, :time
         # JSON column type is only supported on 5.2 or higher
-        unless ['4.2', '5.0', '5.1'].include?(ENV['RAILS_VERSION'])
+        unless ['5.0', '5.1'].include?(ENV['RAILS_VERSION'])
           add_column :wands, :spell_history,  :json
           add_column :wands, :maker_info,     :json,    null: false, default: '{}'
         end
@@ -300,19 +267,6 @@ def create_migrations
     end
   RUBY
 
-  if ENV["RAILS_VERSION"] != "4.2"
-    file "db/migrate/20190620000006_add_more_enums_to_wizard.rb", <<~RUBY
-      class AddMoreEnumsToWizard < #{migration_superclass}
-        def change
-          add_column :wizards, :quidditch_position, :integer
-          add_column :wizards, :hair_color, :integer
-          add_column :wizards, :eye_color, :integer
-          add_column :wizards, :hair_length, :integer
-        end
-      end
-    RUBY
-  end
-
   file "db/migrate/20190620000007_add_type_to_wizard.rb", <<~RUBY
     class AddTypeToWizard < #{migration_superclass}
       def change
@@ -323,13 +277,6 @@ def create_migrations
 end
 
 def create_mailers
-  if ENV['RAILS_VERSION'] == '4.2'
-    file "app/mailers/application_mailer.rb", <<~RUBY
-      class ApplicationMailer < ActionMailer::Base
-      end
-    RUBY
-  end
-
   file "app/mailers/hogwarts_acceptance_mailer.rb", <<~RUBY
     class HogwartsAcceptanceMailer < ApplicationMailer
       extend T::Sig
@@ -374,7 +321,7 @@ end
 # Main setup
 source_paths
 
-if ['4.2', '5.0'].include?(ENV["RAILS_VERSION"])
+if ['5.0'].include?(ENV["RAILS_VERSION"])
   File.open('Gemfile', 'r+') do |f|
     out = ""
     f.each do |line|
@@ -393,6 +340,7 @@ add_gems
 after_bundle do
   say "Creating application..."
   add_routes
+  add_environment
   create_initializers
   create_lib
   create_helpers
@@ -401,19 +349,16 @@ after_bundle do
   create_mailers
   add_sorbet_test_files
 
-  bundle_version = ENV["RAILS_VERSION"] == "4.2" ? "_1.17.3_" : ""
-
   Bundler.with_clean_env do
-    # Rails 4.2 doesn't have the rails_command method, so just use run.
-    run "bundle #{bundle_version} exec rake db:migrate"
+    run "bundle exec rake db:migrate"
   end
 
   if ENV["RUN_WITH_SORBET"] != 'false'
     Bundler.with_clean_env do
-      run "SRB_YES=true bundle #{bundle_version} exec srb init"
-      run "bundle #{bundle_version} exec rake rails_rbi:all"
-      run "bundle #{bundle_version} exec srb rbi hidden-definitions"
-      run "bundle #{bundle_version} exec srb rbi todo"
+      run "SRB_YES=true bundle exec srb init"
+      run "bundle exec rake rails_rbi:all"
+      run "bundle exec srb rbi hidden-definitions"
+      run "bundle exec srb rbi todo"
     end
   end
   say "Done!"

@@ -192,6 +192,15 @@ class ActiveStorage::Attachment < ActiveRecord::Base
 
   sig { params(args: T.untyped).returns(T::Boolean) }
   def self.one?(*args); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(ActiveStorage::Attachment) }
+  def self.create(attributes = nil, &block); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(ActiveStorage::Attachment) }
+  def self.create!(attributes = nil, &block); end
+
+  sig { params(attributes: T.untyped, block: T.untyped).returns(ActiveStorage::Attachment) }
+  def self.new(attributes = nil, &block); end
 end
 
 class ActiveStorage::Attachment::ActiveRecord_Relation < ActiveRecord::Relation
@@ -349,7 +358,7 @@ class ActiveStorage::Attachment::ActiveRecord_Relation < ActiveRecord::Relation
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: ActiveStorage::Attachment).void).void }
+  sig { override.params(block: T.proc.params(e: ActiveStorage::Attachment).void).returns(T::Array[ActiveStorage::Attachment]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[ActiveStorage::Attachment]) }
@@ -522,7 +531,7 @@ class ActiveStorage::Attachment::ActiveRecord_AssociationRelation < ActiveRecord
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: ActiveStorage::Attachment).void).void }
+  sig { override.params(block: T.proc.params(e: ActiveStorage::Attachment).void).returns(T::Array[ActiveStorage::Attachment]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[ActiveStorage::Attachment]) }
@@ -694,7 +703,7 @@ class ActiveStorage::Attachment::ActiveRecord_Associations_CollectionProxy < Act
   sig { params(args: T.untyped).returns(T::Boolean) }
   def one?(*args); end
 
-  sig { override.params(block: T.proc.params(e: ActiveStorage::Attachment).void).void }
+  sig { override.params(block: T.proc.params(e: ActiveStorage::Attachment).void).returns(T::Array[ActiveStorage::Attachment]) }
   def each(&block); end
 
   sig { params(level: T.nilable(Integer)).returns(T::Array[ActiveStorage::Attachment]) }
