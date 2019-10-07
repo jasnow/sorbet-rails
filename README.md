@@ -56,7 +56,7 @@ This Rake task generates RBI files for all models in the Rails application (all 
 ```sh
 ❯ rake rails_rbi:models
 ```
-You can also regenerate RBI files for specific models:
+You can also regenerate RBI files for specific models. To accommodate for STI, this will generate rbi for all the subclasses of the models included.
 ```sh
 ❯ rake rails_rbi:models[ModelName,AnotherOne,...]
 ```
@@ -232,6 +232,10 @@ with:
 Model.unscoped.scoping do … end
 ```
 
+### `select` with a block
+
+The [`select` method](https://apidock.com/rails/v4.0.2/ActiveRecord/QueryMethods/select) method in Rails has two modes: it can be given a list of symbols, in which case rails will only return the given columns from the database, or it can be given a block, in which case it acts like [`Enumerable.select`](https://ruby-doc.org/core-2.6.4/Enumerable.html) and returns an array. We have chosen to support the first use case. If you want to pass a block to `select`, you can simply call `to_a` before you do. Note that this would be done within the `select` call anyway, so the performance penalty will be minimal.
+
 ## Extending Model Generation Task with Custom Plugins
 
 `sorbet-rails` support a customizable plugin system that you can use to generate additional RBI for each model. This will be useful to generate RBI for methods dynamically added by gems or private concerns. If you write plugins for public gems, please feel free to contribute it to this repo.
@@ -309,9 +313,11 @@ These are the currently-supported gems and their symbolized names:
 
 | Gem          | Symbol         |
 |--------------|----------------|
+| [ElasticSearch]| `:elastic_search` |
+| [FriendlyId] | `:friendly_id` |
 | [Kaminari]   | `:kaminari`    |
 | [PgSearch]   | `:pg_search`   |
-| [FriendlyId] | `:friendly_id` |
+| [Shrine]     | `:shrine`      |
 
 You can also configure the core model plugins if needed. The default plugins are defined in the [config](https://github.com/chanzuckerberg/sorbet-rails/blob/master/lib/sorbet-rails/config.rb). For the full list of plugin symbols, check out [here](https://github.com/chanzuckerberg/sorbet-rails/blob/master/lib/sorbet-rails/model_plugins/plugins.rb).
 
@@ -319,6 +325,8 @@ You can also configure the core model plugins if needed. The default plugins are
 [Kaminari]: https://github.com/kaminari/kaminari
 [PgSearch]: https://github.com/Casecommons/pg_search
 [FriendlyId]: https://github.com/norman/friendly_id
+[ElasticSearch]: https://github.com/elastic/elasticsearch-rails
+[Shrine]: https://github.com/shrinerb/shrine
 
 ## Contributing
 
